@@ -1,9 +1,13 @@
 # Facial Detection using OpenCV and PySimpleGUI
 # By gingernikki
 
+## IMPORTS
+
 import PySimpleGUI as UI
 import cv2
 import os
+
+## GUI STUFF
 
 def selectfilewindow():
     UI.theme('SystemDefault');
@@ -16,7 +20,6 @@ def selectfilewindow():
         # "Recognize" button in white color
         [UI.Button('Recognize', key='recognize', button_color=('black', 'white'), size=25)],
     ]
-    
     while True:
         # Listen for events
         event, values = UI.Window(title='Facial Detection', layout=layout, finalize=True).read()
@@ -25,6 +28,16 @@ def selectfilewindow():
             # Return the filepath
             return values['filepath']
         break
+
+def draw(style, fcol, thick, img, w, h, y, x):
+    if style == 'rectangle':
+        cv2.rectangle(img, (x,y), (x+w,y+h), (fcol, fcol, fcol), thick)
+        cv2.putText(img, "Face", (x,y-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (fcol, fcol, fcol), thick)
+    elif style == 'circle':
+        cv2.circle(img, (x+w//2, y+h//2), w//2, (fcol, fcol, fcol), thick)
+        cv2.putText(img, "Face", (x-5,y+25), cv2.FONT_HERSHEY_SIMPLEX, 1, (fcol, fcol, fcol), thick)
+
+## OPENCV STUFF
 
 # Detect faces using cv2 and draw a rectangle around them
 def detectfaces(filepath, drawtype):
@@ -35,19 +48,12 @@ def detectfaces(filepath, drawtype):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     # Detect faces in the image
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-    # Draw circle around the faces
     if drawtype == "circle":
         for (x,y,w,h) in faces:
-            cv2.circle(img, (x+w//2, y+h//2), w//2, (0,0,0), 14)
-            cv2.circle(img, (x+w//2, y+h//2), w//2, (255,255,255), 4)
-            cv2.putText(img, "Face", (x-5,y+25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 8)
-            cv2.putText(img, "Face", (x-5,y+25), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+            draw('circle', 0, 14, img, w, h, y, x); draw('rectangle', 255, 6, img, w, h, y, x)
     elif drawtype == "rectangle":
         for (x,y,w,h) in faces:
-            cv2.rectangle(img, (x,y), (x+w,y+h), (0,0,0), 14)
-            cv2.rectangle(img, (x,y), (x+w,y+h), (255,255,255), 4)
-            cv2.putText(img, "Face", (x,y-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 8)
-            cv2.putText(img, "Face", (x,y-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+            draw('rectangle', 0, 14, img, w, h, y, x); draw('rectangle', 255, 6, img, w, h, y, x)
 
     # Return the image
     if len(faces) == 0:
@@ -64,6 +70,8 @@ def showimage(img):
     cv2.waitKey(0)
     # Destroy the window
     cv2.destroyAllWindows()
+
+## RUN MODES
 
 def manual(drawtype):
     # Get file manually
