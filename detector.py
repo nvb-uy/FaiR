@@ -38,10 +38,17 @@ def detectfaces(filepath, drawtype):
     # Draw circle around the faces
     if drawtype == "circle":
         for (x,y,w,h) in faces:
-            cv2.circle(img, (x+w//2, y+h//2), w//2, (255,255,255), 3)
+            cv2.circle(img, (x+w//2, y+h//2), w//2, (0,0,0), 14)
+            cv2.circle(img, (x+w//2, y+h//2), w//2, (255,255,255), 4)
+            cv2.putText(img, "Face", (x-5,y+25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 8)
+            cv2.putText(img, "Face", (x-5,y+25), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
     elif drawtype == "rectangle":
         for (x,y,w,h) in faces:
-            cv2.rectangle(img, (x,y), (x+w,y+h), (255,255,255), 3)
+            cv2.rectangle(img, (x,y), (x+w,y+h), (0,0,0), 14)
+            cv2.rectangle(img, (x,y), (x+w,y+h), (255,255,255), 4)
+            cv2.putText(img, "Face", (x,y-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 8)
+            cv2.putText(img, "Face", (x,y-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+
     # Return the image
     if len(faces) == 0:
         print("Error: No faces detected in the image", filepath)
