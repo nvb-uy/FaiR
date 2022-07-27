@@ -2,4 +2,4 @@
 # AND MAKE THE MANUAL_OUTPUT FILE INSIDE THE OUTPUT FOLDER.
 
 import detector
-detector.manual();
+detector.manual('circle'); # Alternatively, you can use 'rectangle' to draw rectangles around the faces.

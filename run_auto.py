@@ -2,4 +2,4 @@
 # AND MAKE OUTPUT FILES INSIDE THE OUTPUT FOLDER.
 
 import detector
-detector.auto();
+detector.auto('circle'); # Alternatively, you can use 'rectangle' to draw rectangles around the faces.
