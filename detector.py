@@ -10,6 +10,7 @@ import os
 class cfg:
     r, g, b = 255, 255, 255
     shape = 'circle';
+    shapeboth = False;
 
 ## GUIs
 
@@ -27,8 +28,13 @@ def selectfilewindow():
     # Listen for events
     event, values = UI.Window(title='Facial Detection', layout=layout, finalize=True).read()
     while True:
-
         # On the "Recognize" button click
+        if event == 'filepath':
+            # Update text
+            filename = values['filepath']
+            layout[1][0].update(filename)
+            event.update('filepath');
+            continue
         if event == 'recognize':
             # Return the filepath
             return values['filepath']
@@ -41,18 +47,28 @@ def selectfilewindow():
 def settingswindow():
     settingslayout = [
         [UI.Text('Settings Panel', size=20, font=('Helvetica', 8), justification='center')],
+        [UI.Text('Draw Type:', size=10, font=('Helvetica', 8), justification='center')],
+        [UI.Checkbox('Circle', key='circle', default=True, size=10, font=('Helvetica', 8))],
+        [UI.Checkbox('Rectangle', key='rectangle', default=False, size=10, font=('Helvetica', 8))],
+        [],
         [UI.Button('Save', key='save', button_color=('black', 'white'), size=25)],
         [UI.Button('Cancel', key='cancel', button_color=('black', 'white'), size=25)]
     ]
     eventListener, value = UI.Window(title='Settings', layout=settingslayout, finalize=True).read()
     while True:
         if eventListener == 'save':
-            # Get the drawtype
-            drawtype = value['drawtype']
-        elif eventListener == 'cancel':
-            # Close the settings window
-            UI.Window.Close(eventListener)
+            # Update the config
+            if value['circle'] | value['rectangle']:
+                cfg.shapeboth = True;
+                break
+            elif value['circle']:
+                cfg.shape = 'circle';
+                break
+            else:
+                cfg.shape = 'rectangle';
+            break 
         break
+        
 
 ## OPENCV STUFF
 
