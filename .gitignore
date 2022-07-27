@@ -1,1 +1,6 @@
 # Ignore all files in input and output folders
+__pycache__
+input/*.jpg
+output/*.jpg
+input/*.png
+output/*.png
