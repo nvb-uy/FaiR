@@ -5,6 +5,15 @@ import PySimpleGUI as UI
 import cv2
 import os
 
+## LOCAL CONFIG
+# This config is not saved (yet) and will need to be configured each time the program is opened
+class cfg:
+    r, g, b = 255, 255, 255
+    shape = 'circle';
+    shapeboth = False;
+
+## GUIs
+
 def selectfilewindow():
     UI.theme('SystemDefault');
     # Default filename text
@@ -12,19 +21,56 @@ def selectfilewindow():
     # Background color of the window
     UI.SetOptions(background_color = '#dbdbdb');
     layout = [
-        [UI.FileBrowse('Browse', key='filepath', file_types=(('Image Files', '*.jpg'), ('Image Files', '*.png')), button_color=('black', 'white'), size=8, pad=((0,4),(0,0))), UI.Text(filename, size=20, font=('Helvetica', 8), justification='center')],
-        # "Recognize" button in white color
-        [UI.Button('Recognize', key='recognize', button_color=('black', 'white'), size=25)],
+        [UI.FileBrowse('Browse', key='filepath', file_types=(('Image Files', '*.jpg'), ('Image Files', '*.png')), button_color=('black', 'white'), size=8, pad=((0,4),(0,0))), UI.Text(" "*14),UI.Button('Settings', key='settings', button_color=('black', 'white'),size=8, pad=((0,4),(0,0)))],
+        [UI.Text(filename, size=20, font=('Helvetica', 8), justification='center')],
+        [UI.Button('Recognize', key='recognize', button_color=('black', 'white'), size=25)]
     ]
-    
+    # Listen for events
+    event, values = UI.Window(title='Facial Detection', layout=layout, finalize=True).read()
     while True:
-        # Listen for events
-        event, values = UI.Window(title='Facial Detection', layout=layout, finalize=True).read()
         # On the "Recognize" button click
+        if event == 'filepath':
+            # Update text
+            filename = values['filepath']
+            layout[1][0].update(filename)
+            event.update('filepath');
+            continue
         if event == 'recognize':
             # Return the filepath
             return values['filepath']
+        if event == 'settings':
+            # Open the settings window
+            settingswindow();
+            continue
         break
+
+def settingswindow():
+    settingslayout = [
+        [UI.Text('Settings Panel', size=20, font=('Helvetica', 8), justification='center')],
+        [UI.Text('Draw Type:', size=10, font=('Helvetica', 8), justification='center')],
+        [UI.Checkbox('Circle', key='circle', default=True, size=10, font=('Helvetica', 8))],
+        [UI.Checkbox('Rectangle', key='rectangle', default=False, size=10, font=('Helvetica', 8))],
+        [],
+        [UI.Button('Save', key='save', button_color=('black', 'white'), size=25)],
+        [UI.Button('Cancel', key='cancel', button_color=('black', 'white'), size=25)]
+    ]
+    eventListener, value = UI.Window(title='Settings', layout=settingslayout, finalize=True).read()
+    while True:
+        if eventListener == 'save':
+            # Update the config
+            if value['circle'] | value['rectangle']:
+                cfg.shapeboth = True;
+                break
+            elif value['circle']:
+                cfg.shape = 'circle';
+                break
+            else:
+                cfg.shape = 'rectangle';
+            break 
+        break
+        
+
+## OPENCV STUFF
 
 # Detect faces using cv2 and draw a rectangle around them
 def detectfaces(filepath, drawtype):
@@ -58,6 +104,9 @@ def showimage(img):
     # Destroy the window
     cv2.destroyAllWindows()
 
+
+## MODES
+
 def manual(drawtype):
     # Get file manually
     imgPath = selectfilewindow();
@@ -72,7 +121,6 @@ def manual(drawtype):
     fileType = imgPath.split('.')[-1]
     # Save the image
     cv2.imwrite('data/output/'+fileName + '.' + fileType, finalImage)
-
 def auto(drawtype):
     # for each file in the input folder (data/input)
         for file in os.listdir('data/input'):
